@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
 import 'Bloc Observer/blocObserver.dart';
-import 'Modules/Main Menu/mainMenuScreen.dart';
+import 'Layout/mainMenuLayout.dart';
 
 void main() {
   Bloc.observer = MyBlocObserver();
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const MainMenuScreen(),
+      home: const MainMenuLayout(),
     );
   }
 }
