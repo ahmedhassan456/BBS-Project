@@ -1,15 +1,39 @@
 class ItemModel{
-  String? id;
-  String? name;
-  String? barcode;
-  double? price;
-  int? quantity;
+  String? itemID;
+  String? itemName;
+  String? itemBarcode;
+  double? itemPrice;
+  int? itemQuantity;
+
+  ItemModel({
+    required String id,
+    required String name,
+    required String barcode,
+    required double price,
+    required int quantity
+}){
+    itemID = id;
+    itemName = name;
+    itemBarcode = barcode;
+    itemPrice = price;
+    itemQuantity = quantity;
+}
 
   ItemModel.formJson(Map<String, dynamic> json){
-    id = json['id'];
-    name = json['name'];
-    barcode = json['barcode'];
-    price = json['price'];
-    quantity = json['quantity'];
+    itemID = json['ItemID'];
+    itemName = json['ItemName'];
+    itemBarcode = json['ItemBarcode'];
+    itemPrice = json['ItemPrice'];
+    itemQuantity = json['ItemQuantity'];
+  }
+
+  Map<String, dynamic> toMap()  {
+    return{
+      'ItemID': itemID,
+      'ItemName': itemName,
+      'ItemBarcode': itemBarcode,
+      'ItemPrice': itemPrice,
+      'ItemQuantity': itemQuantity,
+    };
   }
 }

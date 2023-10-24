@@ -1,13 +1,29 @@
 class StockRecordsModel{
-  int? docNumber;
+  int? recordDocumentNumber;
   String? recordTime;
-  String? itemId;
-  int? quantity;
+  String? itemID;
+  int? itemQuantity;
+
+  StockRecordsModel({
+    this.recordDocumentNumber,
+    this.recordTime,
+    this.itemID,
+    this.itemQuantity
+});
 
   StockRecordsModel.formJson(Map<String, dynamic> json){
-    docNumber = json['docNumber'];
-    recordTime = json['recordTime'];
-    itemId = json['itemId'];
-    quantity = json['quantity'];
+    recordDocumentNumber = json['RecordDocumentNumber'];
+    recordTime = json['RecordTime'];
+    itemID = json['ItemID'];
+    itemQuantity = json['ItemQuantity'];
+  }
+
+  Map<String, dynamic> toMap(){
+    return {
+      'RecordDocumentNumber': recordDocumentNumber,
+      'RecordTime': recordTime,
+      'ItemID': itemID,
+      'ItemQuantity': itemQuantity,
+    };
   }
 }
