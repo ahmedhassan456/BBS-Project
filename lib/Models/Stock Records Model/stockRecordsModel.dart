@@ -5,11 +5,16 @@ class StockRecordsModel{
   int? itemQuantity;
 
   StockRecordsModel({
-    this.recordDocumentNumber,
-    this.recordTime,
-    this.itemID,
-    this.itemQuantity
-});
+    required int recordNo,
+    required String recordTime,
+    required String itemId,
+    required int itemQty,
+}){
+    recordDocumentNumber = recordNo;
+    this.recordTime = recordTime;
+    this.itemID = itemId;
+    itemQuantity = itemQty;
+  }
 
   StockRecordsModel.formJson(Map<String, dynamic> json){
     recordDocumentNumber = json['RecordDocumentNumber'];

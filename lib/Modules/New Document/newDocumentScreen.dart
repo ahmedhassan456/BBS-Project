@@ -1,6 +1,7 @@
 import 'package:bbs_project/Cubits/Database%20Cubit/databaseCubit.dart';
 import 'package:bbs_project/Cubits/Database%20Cubit/databaseStates.dart';
 import 'package:bbs_project/Models/Items%20Model/itemsModel.dart';
+import 'package:bbs_project/Models/Stock%20Records%20Model/stockRecordsModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -201,13 +202,31 @@ class NewDocumentScreen extends StatelessWidget {
                           onPressed: (){
                             String date = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
                             print(date);
-                            cubit.insertIntoDatabase(
-                                docNumber: int.parse(documentController.text),
-                                recordTime: date,
+                            ItemModel itemModel = ItemModel(
+                                id: documentController.text,
+                                name: 'Item ${documentController.text}',
+                                barcode: barcodeController.text,
+                                price: 300.0,
                                 quantity: int.parse(quantityController.text),
-                                itemID: documentController.text,
-                                items: cubit.items![cubit.items!.length-1],
                             );
+                            List<ItemModel> items = [];
+                            items.add(itemModel);
+
+                            StockRecordsModel stockRecord = StockRecordsModel(
+                                recordNo: int.parse(documentController.text),
+                                recordTime: date,
+                                itemId: documentController.text,
+                                itemQty: int.parse(quantityController.text),
+                            );
+
+                            cubit.insertIntoDatabase(
+                                stockRecords: stockRecord,
+                                items: items,
+                            ).then((value) {
+                              print('inserted Successfully');
+                            }).catchError((error) {
+                              print('error ---------- ${error.toString()}');
+                            });
                           },
                         ),
                       ),

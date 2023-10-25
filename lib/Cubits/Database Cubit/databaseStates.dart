@@ -25,3 +25,6 @@ class GetDataFromItemsTableErrorState extends DatabaseStates{}
 class ChangeDocumentNoState extends DatabaseStates{}
 
 class Delete extends DatabaseStates{}
+
+class SearchInItemTableSuccessState extends DatabaseStates{}
+class SearchInItemTableErrorState extends DatabaseStates{}
