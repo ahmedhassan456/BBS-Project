@@ -19,10 +19,10 @@ class CheckInventoryScreen extends StatelessWidget {
       child: BlocConsumer<DatabaseCubit, DatabaseStates>(
         listener: (context, state){
           if(state is SearchInItemTableSuccessState){
-            if(DatabaseCubit.get(context).itemModelSearch != null){
-              nameController.text = DatabaseCubit.get(context).itemModelSearch!.itemName!;
-              priceController.text = DatabaseCubit.get(context).itemModelSearch!.itemPrice! as String;
-              quantityController.text = DatabaseCubit.get(context).itemModelSearch!.itemQuantity! as String;
+            if(DatabaseCubit.get(context).searchMap.isNotEmpty){
+              nameController.text = DatabaseCubit.get(context).searchMap['ItemBarcode'];
+              priceController.text = '${DatabaseCubit.get(context).searchMap['ItemPrice']}';
+              quantityController.text = '${DatabaseCubit.get(context).searchMap['ItemQuantity']}';
             }
           }
         },
@@ -49,7 +49,7 @@ class CheckInventoryScreen extends StatelessWidget {
                         border: OutlineInputBorder(),
                       ),
                       onFieldSubmitted: (value){
-                        cubit.searchWithBarcode(value);
+                        DatabaseCubit.get(context).searchWithBarcode(barcodeController.text);
                       },
                     ),
                     const SizedBox(height: 80.0,),

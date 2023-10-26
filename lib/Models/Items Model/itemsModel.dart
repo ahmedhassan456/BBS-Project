@@ -2,14 +2,14 @@ class ItemModel{
   String? itemID;
   String? itemName;
   String? itemBarcode;
-  double? itemPrice;
+  int? itemPrice;
   int? itemQuantity;
 
   ItemModel({
     required String id,
     required String name,
     required String barcode,
-    required double price,
+    required int price,
     required int quantity
 }){
     itemID = id;

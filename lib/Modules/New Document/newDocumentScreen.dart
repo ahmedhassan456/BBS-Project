@@ -150,7 +150,7 @@ class NewDocumentScreen extends StatelessWidget {
                               id: documentController.text,
                               name: 'Item ${documentController.text}',
                               barcode: barcodeController.text,
-                              price: 300.0,
+                              price: 300,
                               quantity: int.parse(quantityController.text),
                             );
                             cubit.items?.add(itemModel.toMap());
@@ -199,14 +199,14 @@ class NewDocumentScreen extends StatelessWidget {
                         ),
                         child: MaterialButton(
                           child: const Text('Save',style: TextStyle(fontSize: 20.0,color: Colors.white,),),
-                          onPressed: (){
+                          onPressed: () async{
                             String date = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
                             print(date);
                             ItemModel itemModel = ItemModel(
                                 id: documentController.text,
                                 name: 'Item ${documentController.text}',
                                 barcode: barcodeController.text,
-                                price: 300.0,
+                                price: 300,
                                 quantity: int.parse(quantityController.text),
                             );
                             List<ItemModel> items = [];
@@ -219,14 +219,10 @@ class NewDocumentScreen extends StatelessWidget {
                                 itemQty: int.parse(quantityController.text),
                             );
 
-                            cubit.insertIntoDatabase(
-                                stockRecords: stockRecord,
-                                items: items,
-                            ).then((value) {
-                              print('inserted Successfully');
-                            }).catchError((error) {
-                              print('error ---------- ${error.toString()}');
-                            });
+                            DatabaseCubit.get(context).insertIntoDatabase(
+                              item: itemModel,
+                              stock: stockRecord,
+                            );
                           },
                         ),
                       ),

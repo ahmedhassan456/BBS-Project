@@ -1,6 +1,7 @@
 import 'package:bbs_project/Cubits/Database%20Cubit/databaseStates.dart';
 import 'package:bbs_project/Models/Items%20Model/itemsModel.dart';
 import 'package:bbs_project/Models/Stock%20Records%20Model/stockRecordsModel.dart';
+import 'package:bbs_project/constant.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart';
@@ -27,7 +28,7 @@ class DatabaseCubit extends Cubit<DatabaseStates> {
             ItemBarcode VARCHAR(255) UNIQUE,
             ItemPrice REAL,
             ItemQuantity INT
-        )
+        );
         ''').then((value) {
           print('Items Table Created');
           emit(CreateItemsTableSuccessState());
@@ -44,7 +45,8 @@ class DatabaseCubit extends Cubit<DatabaseStates> {
           ItemQuantity INT,
           PRIMARY KEY (RecordDocumentNumber, RecordTime, ItemID),
           FOREIGN KEY (ItemID) REFERENCES Items(ItemID)
-        )''').then((value) {
+        );
+        ''').then((value) {
           print('StockRecords Table Created');
           emit(CreateStockRecordsTableSuccessState());
         }).catchError((error) {
@@ -59,6 +61,8 @@ class DatabaseCubit extends Cubit<DatabaseStates> {
       },
     ).then((value) {
       database = value;
+      databa = value;
+      print('path --------- ${database?.path}');
       emit(CreateDatabaseState());
     }).catchError((error) {
       print('error -------- ${error.toString()}');
@@ -66,73 +70,52 @@ class DatabaseCubit extends Cubit<DatabaseStates> {
     });
   }
 
-  Future<void> insertIntoDatabase({
-    required StockRecordsModel stockRecords,
-    required List<ItemModel> items,
-  }) async {
-    final db = await database;
+  void insertIntoDatabase({
+    required ItemModel item,
+    required StockRecordsModel stock,
+}) async {
+    print("pass ------------ ${database?.path}");
+    final db = databa;
 
-    await db?.transaction((txn) async{
+    await db!.transaction((txn) async{
 
-      for (var item in items) {
-        await txn.insert(
-          'Items',
-          item.toMap(),
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        ).then((value) {
-          print('$value inserted Successfully');
-          emit(InsertIntoItemsTableSuccessState());
-        }).catchError((error) {
-          print('error -------- ${error.toString()}');
-          emit(InsertIntoStockTableErrorState());
-        });
-      }
-
-      await txn.insert(
-        'StockRecords',
-        stockRecords.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
+      int? ins1 = await txn.rawInsert('''
+      INSERT INTO Items(ItemID, ItemName, ItemBarcode, ItemPrice, ItemQuantity)
+      VALUES ('${item.itemID}', '${item.itemName}', '${item.itemBarcode}', ${item.itemPrice}, ${item.itemQuantity})
+      ''',
       ).then((value) {
-        print('inserted Successfully');
+        print('$value inserted Successfully to Items Table');
+        emit(InsertIntoItemsTableSuccessState());
+      }).catchError((error) {
+        print('error ---------- ${error.toString()}');
+        emit(InsertIntoItemsTableErrorState());
+      });
+
+      int? ins2 = await txn.rawInsert('''
+      INSERT INTO StockRecords(RecordDocumentNumber, RecordTime, ItemID, ItemQuantity)
+      VALUES (${stock.recordDocumentNumber}, '${stock.recordTime}', '${stock.itemID}', ${stock.itemQuantity})
+      ''',
+      ).then((value) {
+        print('$value inserted Successfully to Stock Table');
         emit(InsertIntoStockTableSuccessState());
       }).catchError((error) {
-        print('error ------ ${error.toString()}');
+        print('error ---------- ${error.toString()}');
         emit(InsertIntoStockTableErrorState());
       });
+
     });
-    // db?.transaction((txn) async{
-    //   // Insert items into StockRecordsItems table
-    //   await txn.rawInsert('''
-    //   INSERT INTO StockRecords (RecordDocumentNumber, RecordTime, ItemID, ItemQuantity)
-    //   VALUES (${int.parse(documentNo)}, $recordTime, $itemID, $quantity)
-    //   ''').then((value) {
-    //     print('inserted Successfully');
-    //     emit(InsertIntoStockTableSuccessState());
-    //   }).catchError((error) {
-    //     print('error ------ ${error.toString()}');
-    //     emit(InsertIntoStockTableErrorState());
-    //   });
-    //
-    //
-    //   await txn.rawInsert('''
-    //     INSERT INTO Items (ItemID, ItemName, ItemBarcode, ItemPrice, ItemQuantity)
-    //     VALUES ("${items['ItemID']}", "${items['ItemName']}", "${items['ItemBarcode']}", ${items['ItemPrice']}, ${items['ItemQuantity']})
-    //     ''').then((value) {
-    //     print('$value inserted Successfully');
-    //     emit(InsertIntoItemsTableSuccessState());
-    //   }).catchError((error) {
-    //     print('error -------- ${error.toString()}');
-    //     emit(InsertIntoStockTableErrorState());
-    //   });
 
 
   }
 
-  List<Map>? records = [];
+  List<Map<String, dynamic>>? records = [];
   void getDataFromStockTable(Database db) async {
     await db.rawQuery('SELECT * FROM StockRecords').then((value) {
+
+      value.forEach((element) {
+        records?.add(element);
+      });
       print(records);
-      records = value;
       emit(GetDataFromStockTableSuccessState());
     }).catchError((error) {
       print('error ------- ${error.toString()}');
@@ -140,11 +123,14 @@ class DatabaseCubit extends Cubit<DatabaseStates> {
     });
   }
 
-  List<Map>? items = [];
+  List<Map<String, dynamic>> items = [];
   void getDataFromItemsTable(Database db) async {
     await db.rawQuery('SELECT * FROM Items').then((value) {
+
+      value.forEach((element) {
+        items.add(element);
+      });
       print(items);
-      items = value;
       emit(GetDataFromItemsTableSuccessState());
     }).catchError((error) {
       print('error ------- ${error.toString()}');
@@ -174,16 +160,16 @@ class DatabaseCubit extends Cubit<DatabaseStates> {
   //   });
   // }
   
-  ItemModel? itemModelSearch;
+  Map<String, dynamic> searchMap = {};
   void searchWithBarcode(String barcode) async{
-    final db = await database;
+    final db = databa;
     
-    await db?.query('''
+    await db?.rawQuery('''
     SELECT * FROM Items
-    WHERE ItemBarcode='$barcode';
+    WHERE ItemBarcode='$barcode'
     ''').then((value) {
-      itemModelSearch = ItemModel.formJson(value[0]);
-      print('itemModelSearch ---- ${itemModelSearch?.itemBarcode}');
+      searchMap.addAll(value[0]);
+      print('itemModelSearch ---- $searchMap');
       emit(SearchInItemTableSuccessState());
     }).catchError((error){
       print('Search in Item Table error ---- ${error.toString()}');
