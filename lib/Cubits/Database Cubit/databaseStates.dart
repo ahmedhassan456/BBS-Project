@@ -1,30 +1,39 @@
-abstract class DatabaseStates{}
-class DatabaseInitialState extends DatabaseStates{}
+abstract class DatabaseStates {}
 
-class CreateDatabaseState extends DatabaseStates{}
-class CreateDatabaseErrorState extends DatabaseStates{}
+class DatabaseInitialState extends DatabaseStates {}
 
-class CreateItemsTableSuccessState extends DatabaseStates{}
-class CreateItemsTableErrorState extends DatabaseStates{}
+class CreateDatabaseState extends DatabaseStates {}
+class CreateDatabaseErrorState extends DatabaseStates {}
 
-class CreateStockRecordsTableSuccessState extends DatabaseStates{}
-class CreateStockRecordsTableErrorState extends DatabaseStates{}
+class CreateItemsTableSuccessState extends DatabaseStates {}
+class CreateItemsTableErrorState extends DatabaseStates {}
 
-class InsertIntoItemsTableSuccessState extends DatabaseStates{}
-class InsertIntoItemsTableErrorState extends DatabaseStates{}
+class CreateStockRecordsTableSuccessState extends DatabaseStates {}
+class CreateStockRecordsTableErrorState extends DatabaseStates {}
 
-class InsertIntoStockTableSuccessState extends DatabaseStates{}
-class InsertIntoStockTableErrorState extends DatabaseStates{}
+class InsertIntoItemsTableSuccessState extends DatabaseStates {}
+class InsertIntoItemsTableErrorState extends DatabaseStates {
+  final String error;
 
-class GetDataFromStockTableSuccessState extends DatabaseStates{}
-class GetDataFromStockTableErrorState extends DatabaseStates{}
+  InsertIntoItemsTableErrorState(this.error);
+}
 
-class GetDataFromItemsTableSuccessState extends DatabaseStates{}
-class GetDataFromItemsTableErrorState extends DatabaseStates{}
+class InsertIntoStockTableSuccessState extends DatabaseStates {}
+class InsertIntoStockTableErrorState extends DatabaseStates {
+  final String error;
 
-class ChangeDocumentNoState extends DatabaseStates{}
+  InsertIntoStockTableErrorState(this.error);
+}
 
-class Delete extends DatabaseStates{}
+class GetDataFromStockTableSuccessState extends DatabaseStates {}
+class GetDataFromStockTableErrorState extends DatabaseStates {}
 
-class SearchInItemTableSuccessState extends DatabaseStates{}
-class SearchInItemTableErrorState extends DatabaseStates{}
+class GetDataFromItemsTableSuccessState extends DatabaseStates {}
+class GetDataFromItemsTableErrorState extends DatabaseStates {}
+
+class ChangeDocumentNoState extends DatabaseStates {}
+
+class SearchInItemTableSuccessState extends DatabaseStates {}
+class SearchInItemTableErrorState extends DatabaseStates {}
+
+class AddToItemListState extends DatabaseStates {}

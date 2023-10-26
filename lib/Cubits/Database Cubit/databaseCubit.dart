@@ -13,6 +13,7 @@ class DatabaseCubit extends Cubit<DatabaseStates> {
   static DatabaseCubit get(context) => BlocProvider.of(context);
 
   Database? database;
+
   void createDatabase() async {
     var path = join(await getDatabasesPath(), 'stocktaking.db');
     openDatabase(
@@ -70,16 +71,16 @@ class DatabaseCubit extends Cubit<DatabaseStates> {
     });
   }
 
-  void insertIntoDatabase({
+  Future<void> insertIntoDatabase({
     required ItemModel item,
     required StockRecordsModel stock,
-}) async {
+  }) async {
     print("pass ------------ ${database?.path}");
     final db = databa;
 
-    await db!.transaction((txn) async{
-
-      int? ins1 = await txn.rawInsert('''
+    await db!.transaction((txn) async {
+      int? ins1 = await txn.rawInsert(
+        '''
       INSERT INTO Items(ItemID, ItemName, ItemBarcode, ItemPrice, ItemQuantity)
       VALUES ('${item.itemID}', '${item.itemName}', '${item.itemBarcode}', ${item.itemPrice}, ${item.itemQuantity})
       ''',
@@ -88,10 +89,11 @@ class DatabaseCubit extends Cubit<DatabaseStates> {
         emit(InsertIntoItemsTableSuccessState());
       }).catchError((error) {
         print('error ---------- ${error.toString()}');
-        emit(InsertIntoItemsTableErrorState());
+        emit(InsertIntoItemsTableErrorState(error.toString()));
       });
 
-      int? ins2 = await txn.rawInsert('''
+      int? ins2 = await txn.rawInsert(
+        '''
       INSERT INTO StockRecords(RecordDocumentNumber, RecordTime, ItemID, ItemQuantity)
       VALUES (${stock.recordDocumentNumber}, '${stock.recordTime}', '${stock.itemID}', ${stock.itemQuantity})
       ''',
@@ -100,18 +102,16 @@ class DatabaseCubit extends Cubit<DatabaseStates> {
         emit(InsertIntoStockTableSuccessState());
       }).catchError((error) {
         print('error ---------- ${error.toString()}');
-        emit(InsertIntoStockTableErrorState());
+        emit(InsertIntoStockTableErrorState(error.toString()));
       });
-
     });
-
-
   }
 
   List<Map<String, dynamic>>? records = [];
+
   void getDataFromStockTable(Database db) async {
     await db.rawQuery('SELECT * FROM StockRecords').then((value) {
-
+      records?.clear();
       value.forEach((element) {
         records?.add(element);
       });
@@ -124,9 +124,10 @@ class DatabaseCubit extends Cubit<DatabaseStates> {
   }
 
   List<Map<String, dynamic>> items = [];
-  void getDataFromItemsTable(Database db) async {
-    await db.rawQuery('SELECT * FROM Items').then((value) {
 
+  Future<void> getDataFromItemsTable(Database db) async {
+    await db.rawQuery('SELECT * FROM Items').then((value) {
+      items.clear();
       value.forEach((element) {
         items.add(element);
       });
@@ -139,31 +140,25 @@ class DatabaseCubit extends Cubit<DatabaseStates> {
   }
 
   String documentNo = '';
+
   void documentNumber() {
     if (records!.isEmpty) {
       documentNo = '1';
       print("documentNo  $documentNo");
       emit(ChangeDocumentNoState());
     } else {
-      documentNo = ((records?[records!.length - 1]['RecordDocumentNumber']) + 1)
-          .toString();
+      documentNo =
+          '${(records?[records!.length - 1]['RecordDocumentNumber'] + 1)}';
       print("documentNo  $documentNo");
       emit(ChangeDocumentNoState());
     }
   }
 
-  // void delete() async{
-  //   var path = join(await getDatabasesPath(), 'stocktaking.db');
-  //   await deleteDatabase(path).then((value) {
-  //     print('deleted successfully');
-  //     emit(Delete());
-  //   });
-  // }
-  
   Map<String, dynamic> searchMap = {};
-  void searchWithBarcode(String barcode) async{
+
+  Future<void> searchWithBarcode(String barcode) async {
     final db = databa;
-    
+
     await db?.rawQuery('''
     SELECT * FROM Items
     WHERE ItemBarcode='$barcode'
@@ -171,14 +166,14 @@ class DatabaseCubit extends Cubit<DatabaseStates> {
       searchMap.addAll(value[0]);
       print('itemModelSearch ---- $searchMap');
       emit(SearchInItemTableSuccessState());
-    }).catchError((error){
+    }).catchError((error) {
       print('Search in Item Table error ---- ${error.toString()}');
       emit(SearchInItemTableErrorState());
     });
   }
+
+  void addToItemsList(ItemModel itemModel) {
+    items.add(itemModel.toMap());
+    emit(AddToItemListState());
+  }
 }
-
-
-
-
-
